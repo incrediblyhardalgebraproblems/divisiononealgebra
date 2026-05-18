@@ -1,2 +1,0 @@
-# divisiononealgebra
-web proxer
