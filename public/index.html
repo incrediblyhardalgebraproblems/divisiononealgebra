@@ -3,27 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Google Docs</title>
+    <title>Division One Algebra - Practice</title>
     <style>
         body { background: #121212; color: #ffffff; font-family: system-ui, sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; }
         .container { text-align: center; width: 100%; max-width: 450px; padding: 20px; }
+        h2 { color: #4CAF50; }
         input { width: 100%; padding: 14px; border-radius: 8px; border: 1px solid #333; background: #222; color: #fff; font-size: 16px; outline: none; box-sizing: border-box; }
-        input:focus { border-color: #007bff; }
-        button { width: 100%; margin-top: 15px; padding: 14px; border: none; background: #007bff; color: #fff; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 16px; }
-        button:hover { background: #0056b3; }
+        input:focus { border-color: #4CAF50; }
+        button { width: 100%; margin-top: 15px; padding: 14px; border: none; background: #4CAF50; color: #fff; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 16px; }
+        button:hover { background: #45a049; }
     </style>
 </head>
 <body>
+
     <div class="container">
-        <h2>Workspace Dashboard</h2>
-        <input type="text" id="target-url" placeholder="Search Google or type a web address..." autofocus>
-        <button onclick="launchStealthTab()">Launch Anonymous Tab</button>
+        <h2>Algebra Module Selection</h2>
+        <p>Enter search query or lesson URL:</p>
+        <input type="text" id="target-url" placeholder="e.g., discord.com or google.com" autofocus>
+        <button onclick="launchStealthTab()">Launch Lesson Worksheet</button>
     </div>
+
     <script>
         function launchStealthTab() {
             let rawUrl = document.getElementById('target-url').value.trim();
             if (!rawUrl) return;
 
+            // Turn raw text into a Google search or add https if missing
             if (!rawUrl.startsWith('http://') && !rawUrl.startsWith('https://')) {
                 if (rawUrl.includes('.') && !rawUrl.includes(' ')) {
                     rawUrl = 'https://' + rawUrl;
@@ -32,18 +37,27 @@
                 }
             }
 
+            // Ultraviolet encoding logic (XOR codec)
             function encodeXor(str) {
                 if (!str) return str;
                 return encodeURIComponent(str.split('').map((char, ind) => ind % 2 ? String.fromCharCode(char.charCodeAt(0) ^ 2) : char).join(''));
             }
 
-            const proxyUrl = window.location.origin + "/uv/" + encodeXor(rawUrl);
+            // Uses an active, public community Bare server to process traffic
+            const bareWorker = "https://studentcenter.biz";
+            const finalDestination = bareWorker + encodeXor(rawUrl);
+
+            // 1. Spawn a clean, history-free browser tab
             const cleanTab = window.open();
             if (!cleanTab) {
-                alert('Pop-up blocked! Enable permissions in your address bar.');
+                alert('Pop-up blocked! Click the icon in your address bar to allow pop-ups.');
                 return;
             }
-            cleanTab.document.title = "Google Drive";
+
+            // 2. Cloak the tab name to look like schoolwork
+            cleanTab.document.title = "Google Docs";
+
+            // 3. Create a full-screen iframe pointing to the proxy network
             const viewportFrame = cleanTab.document.createElement('iframe');
             viewportFrame.style.position = "fixed";
             viewportFrame.style.width = "100vw";
@@ -53,7 +67,7 @@
             viewportFrame.style.border = "none";
             viewportFrame.style.margin = "0px";
             viewportFrame.style.zIndex = "999999";
-            viewportFrame.src = proxyUrl;
+            viewportFrame.src = finalDestination;
 
             cleanTab.document.body.appendChild(viewportFrame);
             document.getElementById('target-url').value = '';
