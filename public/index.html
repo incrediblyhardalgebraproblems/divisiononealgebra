@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Docs</title>
+    <style>
+        body { background: #121212; color: #ffffff; font-family: system-ui, sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; }
+        .container { text-align: center; width: 100%; max-width: 450px; padding: 20px; }
+        input { width: 100%; padding: 14px; border-radius: 8px; border: 1px solid #333; background: #222; color: #fff; font-size: 16px; outline: none; box-sizing: border-box; }
+        input:focus { border-color: #007bff; }
+        button { width: 100%; margin-top: 15px; padding: 14px; border: none; background: #007bff; color: #fff; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 16px; }
+        button:hover { background: #0056b3; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Workspace Dashboard</h2>
+        <input type="text" id="target-url" placeholder="Search Google or type a web address..." autofocus>
+        <button onclick="launchStealthTab()">Launch Anonymous Tab</button>
+    </div>
+    <script>
+        function launchStealthTab() {
+            let rawUrl = document.getElementById('target-url').value.trim();
+            if (!rawUrl) return;
+
+            if (!rawUrl.startsWith('http://') && !rawUrl.startsWith('https://')) {
+                if (rawUrl.includes('.') && !rawUrl.includes(' ')) {
+                    rawUrl = 'https://' + rawUrl;
+                } else {
+                    rawUrl = 'https://google.com' + encodeURIComponent(rawUrl);
+                }
+            }
+
+            function encodeXor(str) {
+                if (!str) return str;
+                return encodeURIComponent(str.split('').map((char, ind) => ind % 2 ? String.fromCharCode(char.charCodeAt(0) ^ 2) : char).join(''));
+            }
+
+            const proxyUrl = window.location.origin + "/uv/" + encodeXor(rawUrl);
+            const cleanTab = window.open();
+            if (!cleanTab) {
+                alert('Pop-up blocked! Enable permissions in your address bar.');
+                return;
+            }
+            cleanTab.document.title = "Google Drive";
+            const viewportFrame = cleanTab.document.createElement('iframe');
+            viewportFrame.style.position = "fixed";
+            viewportFrame.style.width = "100vw";
+            viewportFrame.style.height = "100vh";
+            viewportFrame.style.top = "0px";
+            viewportFrame.style.left = "0px";
+            viewportFrame.style.border = "none";
+            viewportFrame.style.margin = "0px";
+            viewportFrame.style.zIndex = "999999";
+            viewportFrame.src = proxyUrl;
+
+            cleanTab.document.body.appendChild(viewportFrame);
+            document.getElementById('target-url').value = '';
+        }
+    </script>
+</body>
+</html>
